@@ -9,8 +9,21 @@ filename = name of the folder / type of sand
 start = 89
 end = 117
 foldername = 'karlsruhe'
+'number of examples'
+m = end - start
 
-
+""" Neural Network parameter """
+input_number = 11
+output_number = 3
+weight_1_1 = 11
+weight_1_2 = 7
+weight_2_1 =7
+weight_2_2 = 7
+weight_3_1 = 7
+weight_3_2 = 3
+bias_1 = 7
+bias_2 = 7
+bias_3 = 3
 
 '-------------------------------------------------------------------------------------------'
 
@@ -23,6 +36,7 @@ import increment_calculation as incr
  
 import numpy as np
 import random
+
 
 
 class DataFiles(object):
@@ -47,9 +61,16 @@ class DataFiles(object):
         self.datafiles = datafiles
   
     def create_input_matrix(self):
-        stresses_strains = np.column_stack((self.datafiles['S1'],self.datafiles['S2'],self.datafiles['S3'],self.datafiles['E1'],self.datafiles['E2'],self.datafiles['E3'],self.datafiles['v'],self.datafiles['p']))
+        stresses_strains = np.column_stack((self.datafiles['S1'],self.datafiles['S2'],self.datafiles['S3'],self.datafiles['E1'],self.datafiles['E2'],self.datafiles['E3']))
         Strain_increments = incr.Increment_calculations(stresses_strains).strain_increment()
-        input_matrix = np.column_stack((stresses_strains,Strain_increments))
+        '-------------------'
+        'Adding zeros to v and p'
+        v_p = np.column_stack((self.datafiles['v'][0],self.datafiles['p'][0]))
+        lines = len(stresses_strains) - 1
+        zeros_matrix = np.zeros((lines,2))
+        v_p_matrix = np.vstack((v_p,zeros_matrix))
+        '-------------------'
+        input_matrix = np.column_stack((stresses_strains,Strain_increments,v_p_matrix))
         return input_matrix 
   
     def create_output_matrix(self):
@@ -70,7 +91,25 @@ random.shuffle(filenumbers)
 for i in range(0,len(filenumbers)):
     input_matrixs.append(DataFiles(filenumbers[i],foldername).create_input_matrix())
     output_matrixs.append(DataFiles(filenumbers[i],foldername).create_output_matrix())
-    
+
+
+'Without Feature Scaling'
+input_scale = input_matrixs
+output_scale = output_matrixs
+
+# 'Feature Scaling'
+# betrag_x=[]
+# betrag_y = []
+# for b in range(0,m):
+#     betrag_x.append(np.linalg.norm(input_matrixs[b]))
+#     betrag_y.append(np.linalg.norm(output_matrixs[b]))
+#  
+# output_scale = []
+# input_scale = []
+# for i in range(0,m):
+#     input_scale.append(np.divide(input_matrixs[i],betrag_x[i]))
+#     output_scale.append(np.divide(output_matrixs[i],betrag_y[i]))
+
 
 """ seperate all examples into training, cv, test data """
 total = len(filenumbers)
@@ -87,7 +126,6 @@ if (training+cv+test) != total:
     print 'number of seperated data is not right'
 if training != int(training) or cv != int(cv) or test != int(test):
     print 'Error - some float number'
-
 
 
 
