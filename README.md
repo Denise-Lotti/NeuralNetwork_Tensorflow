@@ -1,8 +1,8 @@
 # NeuralNetwork_Tensorflow
 
-Main file: 'NN_Datafiles_test1'
+Main file: 'NN_Datafiles_tensorflow'
 
-Main file contains/uses 'Datafiles' and 'Error_Plots'
+Main file contains/uses 'Datafiles_mechanical' and 'Error_Plots'
 
 'Error_Plots': plots the training and cross-validation error
 
