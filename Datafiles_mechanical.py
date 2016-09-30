@@ -15,6 +15,9 @@ Creation of the input and output matrices by loading the data files
     
     S1, S2, S3 / E1, E2, E3 : principle stresses/strains
     E1_i+1, E2_i+1, E3_i+1 / S1_i+1, S2_i+1, S3_i+1 : principle stress/strain increments
+    
+    stress in [tf] = ton-force; [1 tf] = [9.80665 kN]
+    strain in [%]
 
 Input is needed about the filenames and the neural network structure 
 
@@ -124,22 +127,17 @@ random.shuffle(filenumbers)
 'checking NaN problems by storing all norms of the output data'
 'problem: E2,E3 are constant for some tests, so their increments are 0; zero vector has norm 0; dividing by zero results in NaN'
 
-
 for i in range(0,len(filenumbers)):
     'creating one input and output matrix for each example'
     input_matrix = DataFiles(filenumbers[i],foldername).create_input_matrix()
     output_matrix = DataFiles(filenumbers[i],foldername).create_output_matrix()
-    
-    """ Scaling data by dividing each value with its norm
-        here: different possibilities for norm (comment one(s) not needed"""
+       
+          
+    """ scaling data by dividing each value with its norm """
     'calculating norm of each vector in each example'
-    #norm_x = np.linalg.norm(input_matrix,axis=0)
-    #norm_y = np.linalg.norm(output_matrix,axis=0)
-    'calculating difference between max and min value for vector in each example'
-    norm_x = np.subtract(np.amax(input_matrix, axis=0), np.amin(input_matrix, axis=0))
-    norm_y = np.subtract(np.amax(output_matrix, axis=0), np.amin(output_matrix, axis=0))
-    
-    
+    norm_x = np.linalg.norm(input_matrix,axis=0)
+    norm_y = np.linalg.norm(output_matrix,axis=0)  
+                
     'Referring to NaN problem: changing each norm value which has a zero value to 1'
     for j in range(0,len(norm_x)):
         if norm_x[j] == 0.0: 
@@ -147,11 +145,28 @@ for i in range(0,len(filenumbers)):
     for j in range(0,len(norm_y)):    
         if norm_y[j] == 0.0: 
             norm_y[j]= 1.0
-        
+         
     """ --------------- """
     'Dividing each value by its norm'
     scale_input = np.divide(input_matrix,norm_x)
     scale_output = np.divide(output_matrix,norm_y)
+    
+    
+    """ normalising/scaling by max and min values
+    equation: y = (x - min) / (max - min) """
+#     denominator_x = np.subtract(np.amax(input_matrix, axis=0),np.amin(input_matrix, axis=0))
+#     denominator_y = np.subtract(np.amax(output_matrix, axis=0),np.amin(output_matrix, axis=0))
+#                    
+#     'Referring to NaN problem: changing each denominator value which has a zero value to 1'
+#     for j in range(0,len(denominator_x)):
+#         if denominator_x[j] == 0.0: 
+#             denominator_x[j]= 1.0
+#     for j in range(0,len(denominator_y)):    
+#         if denominator_y[j] == 0.0: 
+#             denominator_y[j]= 1.0
+#     
+#     scale_input = np.divide(np.subtract(input_matrix,np.amin(input_matrix, axis=0)) , denominator_x)
+#     scale_output = np.divide(np.subtract(output_matrix,np.amin(output_matrix, axis=0)) , denominator_y)
     
     'append each single example into the input/output list (output of the whole code)'
     input_matrixs.append(scale_input)
